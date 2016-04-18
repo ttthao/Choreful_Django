@@ -5,24 +5,21 @@ from django.core.urlresolvers import reverse
 from django.views import generic
 from django.utils import timezone
 
-from .models import Question, Choice
+from .models import Question, Answer
 
 class IndexView(generic.ListView):
 	template_name = 'survey/index.html'
 	context_object_name = 'latest_question_list'
 	
 	def get_queryset(self):
-		return Question.objects.filter(
-			pub_date__lte=timezone.now()
-			).order_by('-pub_date')[:5]
+		#return Question.objects.filter(pub_date__lte=timezone.now()).order_by('-pub_date')[:5]
+		return Question.objects.all()
 
 class DetailView(generic.DetailView):
 	model = Question
 	template_name = 'survey/detail.html'
 	def get_queryset(self):
-		return Question.objects.filter(
-			pub_date__lte=timezone.now()
-			)
+		return Question.objects.filter(pub_date__lte=timezone.now())
 
 class ResultsView(generic.DetailView):
 	model = Question
@@ -41,18 +38,16 @@ class ResultsView(generic.DetailView):
 #def results(request, question_id):
 	#question = get_object_or_404(Question, pk=question_id)
 	#return render(request, 'survey/results.html', {'question': question})
-
-def vote(request, question_id):
+def submit(request, question_id):
 	question = get_object_or_404(Question, pk=question_id)
 	try:
-		selected_choice = question.choice_set.get(pk=request.POST['choice'])
-	except (KeyError, Choice.DoesNotExist):
+		answer = question.answer_set.get(pk=request.POST['choice'])
+	except (KeyError, Answer.DoesNotExist):
 		return render(request, 'survey/detail.html', {
 			'question': question,
-			'error_message': "You didn't select a chioce.",
+			'error_message': "You didn't submit a response.",
 		})
 	else:
-		selected_choice.votes += 1
-		selected_choice.save()
+		selected_answer.save()
 		return HttpResponseRedirect(reverse('survey:results', args=(question.id,)))
 
