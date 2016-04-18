@@ -1,0 +1,10 @@
+{% if latest_question_list %}
+<p><strong>Design, Research, Entrepreneurship and Management (DREAM) Chore Habit Survey</p></strong>
+    {% for question in latest_question_list %}
+    <ol>
+	<li><a href="{% url 'survey:detail' question.id %}">{{ question.question_text }}</a></li>
+    {% endfor %}
+    </ol>
+{% else %}
+    <p>No surveys are available.</p>
+{% endif %}
